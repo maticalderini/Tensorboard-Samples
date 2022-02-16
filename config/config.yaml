@@ -1,8 +1,8 @@
 basic:
   #Paths
-  data_root: '/workspaces/LaL_tboard/data'
-  board_dir: /workspaces/LaL_tboard/tensorboard/basic
-  checkpoint_save_dir: /workspaces/LaL_tboard/checkpoints/basic
+  data_root: '/workspaces/Tensorboard-Samples/data'
+  board_dir: /workspaces/Tensorboard-Samples/tensorboard/basic
+  checkpoint_save_dir: /workspaces/Tensorboard-Samples/checkpoints/basic
 
   #Hyperparams
   lr: 0.001
@@ -21,9 +21,9 @@ basic:
 
 informative:
   #Paths
-  data_root: '/workspaces/LaL_tboard/data'
-  board_dir: /workspaces/LaL_tboard/tensorboard/informative
-  checkpoint_save_dir: /workspaces/LaL_tboard/checkpoints/informative
+  data_root: '/workspaces/Tensorboard-Samples/data'
+  board_dir: /workspaces/Tensorboard-Samples/tensorboard/informative
+  checkpoint_save_dir: /workspaces/Tensorboard-Samples/checkpoints/informative
 
   #Hyperparams
   lr: 0.001
@@ -42,9 +42,9 @@ informative:
 
 hyper:
   #Paths
-  data_root: '/workspaces/LaL_tboard/data'
-  board_dir: /workspaces/LaL_tboard/tensorboard/hyper
-  checkpoint_save_dir: /workspaces/LaL_tboard/checkpoints/hyper
+  data_root: '/workspaces/Tensorboard-Samples/data'
+  board_dir: /workspaces/Tensorboard-Samples/tensorboard/hyper
+  checkpoint_save_dir: /workspaces/Tensorboard-Samples/checkpoints/hyper
 
   #Hyperparams
   lr:
