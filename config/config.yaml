@@ -1,0 +1,69 @@
+basic:
+  #Paths
+  data_root: '/workspaces/LaL_tboard/data'
+  board_dir: /workspaces/LaL_tboard/tensorboard/basic
+  checkpoint_save_dir: /workspaces/LaL_tboard/checkpoints/basic
+
+  #Hyperparams
+  lr: 0.001
+  momentum: 0.9
+  batch_size: 8
+  epochs: 20
+
+  #Other
+  download_mnist: True
+  shuffle: True
+  workers: 2
+
+  save_ratio: 0.3
+  board_ratio: 1
+  display_ratio: 1
+
+informative:
+  #Paths
+  data_root: '/workspaces/LaL_tboard/data'
+  board_dir: /workspaces/LaL_tboard/tensorboard/informative
+  checkpoint_save_dir: /workspaces/LaL_tboard/checkpoints/informative
+
+  #Hyperparams
+  lr: 0.001
+  momentum: 0.9
+  batch_size: 8
+  epochs: 20
+
+  #Other
+  download_mnist: True
+  shuffle: True
+  workers: 2
+
+  save_ratio: 0.3
+  board_ratio: 1
+  display_ratio: 1
+
+hyper:
+  #Paths
+  data_root: '/workspaces/LaL_tboard/data'
+  board_dir: /workspaces/LaL_tboard/tensorboard/hyper
+  checkpoint_save_dir: /workspaces/LaL_tboard/checkpoints/hyper
+
+  #Hyperparams
+  lr:
+    - 0.001
+    - 0.005
+    - 0.01
+  momentum:
+    - 0.9
+    - 0.3
+  batch_size:
+    - 8
+    - 2
+  epochs: 20
+
+  #Other
+  download_mnist: True
+  shuffle: True
+  workers: 2
+
+  save_ratio: 0.3
+  board_ratio: 1
+  display_ratio: 1
