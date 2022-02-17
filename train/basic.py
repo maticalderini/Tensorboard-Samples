@@ -47,7 +47,7 @@ val_loader = FashionLoader(val_set,
 model = GarmentClassifier()
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.SGD(model.parameters(),
-                      lr=opt['lr'], momentum=opt['momentum'])
+                      lr=lr, momentum=momentum)
 
 #%% Loop
 # Basic loop with no early stopping

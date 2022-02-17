@@ -1,7 +1,12 @@
 import torch
 import torch.nn.functional as F
 import matplotlib.pyplot as plt
+
 import numpy as np
+import pandas as pd
+
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 def save_checkpoints(model, path):
     torch.save(model.state_dict(), path)
@@ -50,3 +55,14 @@ def plot_classes_preds(net, images, labels, classes):
             classes[labels[idx]]),
                     color=("green" if preds[idx]==labels[idx].item() else "red"))
     return fig
+
+def make_conf_plots(confusion, classes, **kwargs):
+    conf = pd.DataFrame(confusion, index=classes, columns=classes)
+    figs = []
+    for i, title in enumerate(('Precision', 'Recall')):
+        fig, ax = plt.subplots(figsize=2*[len(classes)])
+        sns.heatmap((conf / conf.sum(i)).fillna(0), ax=ax, **kwargs)
+        ax.set(title=title, ylabel='True', xlabel='Predicted')
+        figs.append((title, fig))
+    figs = dict(figs)
+    return(figs)

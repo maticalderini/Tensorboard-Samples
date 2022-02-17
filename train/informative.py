@@ -1,17 +1,19 @@
 #%%
 from pathlib import Path
 
+import numpy as np
+
 from torch.utils.tensorboard import SummaryWriter
 import torch
 import torch.nn as nn
 import torch.optim as optim
+import torch.nn.functional as F
 
 from models.networks import GarmentClassifier
 from datasets.mnist import FashionDataset, FashionLoader
-from utils.utils import save_checkpoints, plot_classes_preds
+from utils.utils import save_checkpoints, plot_classes_preds, make_conf_plots
 
 from config import default_configs as configs
-
 #%% General parameters
 opt = configs['informative']
 
@@ -28,6 +30,8 @@ num_workers = opt['workers']
 save_count = 1 / opt['save_ratio']
 board_count = 1 / opt['board_ratio']
 display_count = 1 / opt['display_ratio']
+
+plot_kwargs = dict(linewidths=1, annot=True, square=True)
 
 #%% HyperParams
 lr = opt['lr']
@@ -49,7 +53,7 @@ val_loader = FashionLoader(val_set,
 model = GarmentClassifier()
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.SGD(model.parameters(),
-                      lr=opt['lr'], momentum=opt['momentum'])
+                      lr=lr, momentum=momentum)
 
 #%% Loop
 # Basic loop with no early stopping
@@ -62,6 +66,12 @@ for epoch in range(epochs):
     ## eval and no_grad are not redundant. First is to set all modules to eval mode, second to stop gradient calculation (should make it faster)
     model.eval()
     val_loss, accuracy = 0, 0
+    
+    epoch_confusion = np.zeros(2*[len(classes)])
+    
+    class_probs = []
+    class_label = []
+    
     with torch.no_grad():
         for inputs, labels in val_loader:
             outputs = model(inputs)
@@ -70,8 +80,21 @@ for epoch in range(epochs):
             val_loss += loss.item()*inputs.size(0)
             
             preds = torch.argmax(outputs, 1)
-            accuracy += torch.sum(preds == labels) / len(preds)
-                
+            accuracy += torch.sum(preds == labels).item()
+            
+            #Conf matrix
+            indeces = tuple(tensor.int().tolist() for tensor in (labels, preds))
+            epoch_confusion[indeces] += 1
+            
+            # Pr-curves
+            class_probs_batch = [F.softmax(el, dim=0) for el in outputs]
+            class_probs.append(class_probs_batch)
+            class_label.append(labels)
+    
+        #Pr-curves 
+        val_probs = torch.cat([torch.stack(batch) for batch in class_probs])
+        val_label = torch.cat(class_label)
+            
         val_loss /= len(val_loader.sampler)
         accuracy /= len(val_loader.sampler)
         
@@ -130,12 +153,18 @@ for epoch in range(epochs):
         
         # using last batch
         for class_index in range(len(classes)):
-            tensorboard_truth = labels == class_index
-            tensorboard_probs = outputs[:, class_index]
+            tensorboard_truth = val_label == class_index
+            tensorboard_probs = val_probs[:, class_index]
+
             writer.add_pr_curve(classes[class_index],
                                 tensorboard_truth,
                                 tensorboard_probs,
                                 global_step=epoch)
+            writer.close()
+        
+        confusions = make_conf_plots(epoch_confusion, classes, **plot_kwargs)
+        for title, figure in confusions.items():
+            writer.add_figure(title, figure, epoch)
         
         writer.add_figure('predictions vs. actuals',
                             plot_classes_preds(model, inputs, labels, classes),
@@ -152,6 +181,41 @@ names = [classes[label] for label in train_set.targets[:100]]
 writer.add_embedding(images.view(-1, 28 * 28),
                     metadata=names,
                     label_img=train_set.data[:100].unsqueeze(1), global_step=epoch)
+
+#%%
+# class_probs = []
+# class_label = []
+# with torch.no_grad():
+#     for data in val_loader:
+#         images, labels = data
+#         output = model(images)
+#         class_probs_batch = [F.softmax(el, dim=0) for el in output]
+
+#         class_probs.append(class_probs_batch)
+#         class_label.append(labels)
+
+# test_probs = torch.cat([torch.stack(batch) for batch in class_probs])
+# test_label = torch.cat(class_label)
+
+# # helper function
+# def add_pr_curve_tensorboard(class_index, test_probs, test_label, global_step=0):
+#     '''
+#     Takes in a "class_index" from 0 to 9 and plots the corresponding
+#     precision-recall curve
+#     '''
+#     tensorboard_truth = test_label == class_index
+#     tensorboard_probs = test_probs[:, class_index]
+
+#     writer.add_pr_curve(classes[class_index],
+#                         tensorboard_truth,
+#                         tensorboard_probs,
+#                         global_step=global_step)
+#     writer.close()
+
+# # plot all the pr curves
+# for i in range(len(classes)):
+#     add_pr_curve_tensorboard(i, test_probs, test_label)
+
 
 #%%
 writer.close()
