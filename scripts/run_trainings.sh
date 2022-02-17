@@ -2,6 +2,6 @@ python -m train.basic
 
 python -m train.informative
 
-python -m train.hyperparams
+python -m train.profiler
 
-ptyon -m train.profiler
+python -m train.hyperparams

@@ -68,7 +68,7 @@ for epoch in range(epochs):
             val_loss += loss.item()*inputs.size(0)
             
             preds = torch.argmax(outputs, 1)
-            accuracy += torch.sum(preds == labels) / len(preds)
+            accuracy += torch.sum(preds == labels).item()
             
         val_loss /= len(val_loader.sampler)
         accuracy /= len(val_loader.sampler)
